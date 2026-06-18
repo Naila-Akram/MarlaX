@@ -14,13 +14,18 @@ import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import type { AuthScreenProps } from '@utils/types/navigation';
 import InputText from '@theme/input/InputText';
+import { useAuthStore } from '@stores/app-store';
 
 type Props = AuthScreenProps<'LoginScreen'>;
 
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const signIn = useAuthStore(state => state.signIn);
 
+  const handleLogin = () => {
+    signIn(null);
+  };
   return (
     <KeyboardAvoidingView
       style={styles.flex}
@@ -92,7 +97,7 @@ const LoginScreen = ({ navigation }: Props) => {
         <BlockButton
           bgColor={theme.colors.black}
           style={styles.loginBtn}
-          onPress={() => {}}
+          onPress={handleLogin}
         >
           <Typography
             size={16}

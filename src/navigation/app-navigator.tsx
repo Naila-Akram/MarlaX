@@ -1,11 +1,24 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { theme } from '@theme/index';
+import type { AppStackParams } from '@utils/types';
+import TabNavigator from './tab-navigator';
 
-// Placeholder — screens will be wired in the next step
+const AppStack = createNativeStackNavigator<AppStackParams>();
+
 const AppNavigator = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text>App Navigator</Text>
-  </View>
+  <AppStack.Navigator
+    initialRouteName="MainTabs"
+    screenOptions={{
+      headerShown: false,
+      contentStyle: {
+        backgroundColor: theme.colors.background,
+      },
+    }}
+  >
+    <AppStack.Screen name="MainTabs" component={TabNavigator} />
+    {/* future full-screen app routes go here, e.g. PropertyDetail */}
+  </AppStack.Navigator>
 );
 
 export default AppNavigator;
