@@ -5,19 +5,19 @@ import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import type { TabScreenProps } from '@utils/types/navigation';
 
-type Props = TabScreenProps<'HomeScreen'>;
+type Props = TabScreenProps<'Listing'>;
 
-const DashboardScreen = ({}: Props) => {
+const ListingScreen = ({}: Props) => {
   return (
     <View style={styles.container}>
       <Typography size={20} weight={theme.fonts.bold}>
-        Dashboard
+        Listing
       </Typography>
     </View>
   );
 };
 
-export default DashboardScreen;
+export default ListingScreen;
 
 const styles = StyleSheet.create({
   container: {

@@ -1,5 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { OTP_TYPE, ScreenTypes } from '.';
+
+// ─── Auth stack ──────────────────────────────────────────────────────────────
 export type AuthStackParams = {
   LoginScreen: undefined;
   SignupScreen: undefined;
@@ -18,6 +21,19 @@ export type AuthStackParams = {
   KycVerification: undefined;
 };
 
+export type AuthScreenProps<T extends keyof AuthStackParams> =
+  NativeStackScreenProps<AuthStackParams, T>;
+
+// ─── App stack ───────────────────────────────────────────────────────────────
+export type AppStackParams = {
+  MainTabs: undefined;
+  // future app-level screens (push over tab bar) go here
+};
+
+export type AppScreenProps<T extends keyof AppStackParams> =
+  NativeStackScreenProps<AppStackParams, T>;
+
+// ─── Bottom tabs ─────────────────────────────────────────────────────────────
 export type BottomTabsStackParams = {
   HomeScreen: undefined;
   Listing: undefined;
@@ -25,5 +41,5 @@ export type BottomTabsStackParams = {
   Documents: undefined;
 };
 
-export type AuthScreenProps<T extends keyof AuthStackParams> =
-  NativeStackScreenProps<AuthStackParams, T>;
+export type TabScreenProps<T extends keyof BottomTabsStackParams> =
+  BottomTabScreenProps<BottomTabsStackParams, T>;
