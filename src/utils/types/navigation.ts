@@ -27,7 +27,7 @@ export type AuthScreenProps<T extends keyof AuthStackParams> =
 // ─── App stack ───────────────────────────────────────────────────────────────
 export type AppStackParams = {
   MainTabs: undefined;
-  // future app-level screens (push over tab bar) go here
+  ViewAll: { title: string };
 };
 
 export type AppScreenProps<T extends keyof AppStackParams> =

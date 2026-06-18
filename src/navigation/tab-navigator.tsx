@@ -19,7 +19,7 @@ import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import type { BottomTabsStackParams } from '@utils/types';
-import DashboardScreen from '@screens/home/dashboard';
+import HomeScreen from '@screens/home/home';
 import ListingScreen from '@screens/home/listing';
 import PaymentsScreen from '@screens/home/payments';
 import DocumentsScreen from '@screens/home/documents';
@@ -130,7 +130,7 @@ const TabNavigator = () => (
     tabBar={props => <CustomTabBar {...props} />}
     screenOptions={{ headerShown: false }}
   >
-    <Tab.Screen name="HomeScreen" component={DashboardScreen} />
+    <Tab.Screen name="HomeScreen" component={HomeScreen} />
     <Tab.Screen name="Listing" component={ListingScreen} />
     <Tab.Screen name="Payments" component={PaymentsScreen} />
     <Tab.Screen name="Documents" component={DocumentsScreen} />
@@ -145,16 +145,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
     backgroundColor: theme.colors.light,
-    paddingHorizontal: responsive(16),
+    paddingHorizontal: responsive(12),
     paddingVertical: responsive(10),
-    paddingBottom: responsive(20),
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.borderColor,
-    elevation: 8,
+    marginHorizontal: responsive(24),
+    marginBottom: responsive(28),
+    borderRadius: responsive(50),
+    elevation: 12,
     shadowColor: theme.colors.black,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
   },
   tabItem: {
     flexDirection: 'row',

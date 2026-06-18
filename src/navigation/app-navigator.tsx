@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { theme } from '@theme/index';
 import type { AppStackParams } from '@utils/types';
 import TabNavigator from './tab-navigator';
+import ViewAllScreen from '@screens/common/view-all';
 
 const AppStack = createNativeStackNavigator<AppStackParams>();
 
@@ -17,7 +18,7 @@ const AppNavigator = () => (
     }}
   >
     <AppStack.Screen name="MainTabs" component={TabNavigator} />
-    {/* future full-screen app routes go here, e.g. PropertyDetail */}
+    <AppStack.Screen name="ViewAll" component={ViewAllScreen} />
   </AppStack.Navigator>
 );
 
