@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import {
   faHouse,
@@ -18,24 +20,35 @@ import {
 import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
-import type { BottomTabsStackParams } from '@utils/types';
-import DashboardScreen from '@screens/home/dashboard';
+import Header from '@components/Header/header';
+import type { BottomTabsStackParams, AppStackParams } from '@utils/types';
+import HomeScreen from '@screens/home/home';
 import ListingScreen from '@screens/home/listing';
 import PaymentsScreen from '@screens/home/payments';
 import DocumentsScreen from '@screens/home/documents';
 
 const Tab = createBottomTabNavigator<BottomTabsStackParams>();
 
+const DUMMY_AVATAR = { uri: 'https://i.pravatar.cc/150?img=12' };
+
+// ─── Header config per tab ────────────────────────────────────────────────────
+type HeaderConfig =
+  | { centerType: 'logo'; bellOutlined?: boolean }
+  | { centerType: 'title'; title: string; bellOutlined?: boolean };
+
+const HEADER_CONFIGS: Record<keyof BottomTabsStackParams, HeaderConfig> = {
+  HomeScreen: { centerType: 'logo' },
+  Listing: { centerType: 'title', title: 'Listings', bellOutlined: true },
+  Payments: { centerType: 'title', title: 'Payments', bellOutlined: true },
+  Documents: { centerType: 'title', title: 'Documents', bellOutlined: true },
+};
+
 // ─── Tab config ───────────────────────────────────────────────────────────────
 const TAB_CONFIG: Record<
   keyof BottomTabsStackParams,
   { label: string; icon: any; activeIcon: any; badge?: string }
 > = {
-  HomeScreen: {
-    label: 'Home',
-    icon: faHouse,
-    activeIcon: faHouseSolid,
-  },
+  HomeScreen: { label: 'Home', icon: faHouse, activeIcon: faHouseSolid },
   Listing: {
     label: 'Listing',
     icon: faBriefcase,
@@ -59,102 +72,134 @@ const CustomTabBar = ({
   state,
   descriptors,
   navigation,
-}: BottomTabBarProps) => {
-  return (
-    <View style={styles.tabBar}>
-      {state.routes.map((route, index) => {
-        const isFocused = state.index === index;
-        const config = TAB_CONFIG[route.name as keyof BottomTabsStackParams];
-        const { options } = descriptors[route.key];
+}: BottomTabBarProps) => (
+  <View style={styles.tabBar}>
+    {state.routes.map((route, index) => {
+      const isFocused = state.index === index;
+      const config = TAB_CONFIG[route.name as keyof BottomTabsStackParams];
+      const { options } = descriptors[route.key];
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          });
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name);
-          }
-        };
+      const onPress = () => {
+        const event = navigation.emit({
+          type: 'tabPress',
+          target: route.key,
+          canPreventDefault: true,
+        });
+        if (!isFocused && !event.defaultPrevented) {
+          navigation.navigate(route.name);
+        }
+      };
 
-        return (
-          <TouchableOpacity
-            key={route.key}
-            onPress={onPress}
-            accessibilityRole="button"
-            accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
-            style={[styles.tabItem, isFocused && styles.tabItemActive]}
-            activeOpacity={0.8}
-          >
-            {/* Badge */}
-            {config.badge && !isFocused && (
-              <View style={styles.badge}>
-                <Typography
-                  size={9}
-                  weight={theme.fonts.semiBold}
-                  color={theme.colors.light}
-                >
-                  {config.badge}
-                </Typography>
-              </View>
-            )}
-
-            <FontAwesomeIcon
-              icon={isFocused ? config.activeIcon : config.icon}
-              size={responsive(18)}
-              color={isFocused ? theme.colors.light : theme.colors.grey_500}
-            />
-
-            {isFocused && (
+      return (
+        <TouchableOpacity
+          key={route.key}
+          onPress={onPress}
+          accessibilityRole="button"
+          accessibilityState={isFocused ? { selected: true } : {}}
+          accessibilityLabel={options.tabBarAccessibilityLabel}
+          style={[styles.tabItem, isFocused && styles.tabItemActive]}
+          activeOpacity={0.8}
+        >
+          {config.badge && !isFocused && (
+            <View style={styles.badgePill}>
               <Typography
-                size={13}
+                size={9}
                 weight={theme.fonts.semiBold}
                 color={theme.colors.light}
-                style={styles.tabLabel}
               >
-                {config.label}
+                {config.badge}
               </Typography>
-            )}
-          </TouchableOpacity>
-        );
-      })}
+            </View>
+          )}
+          <FontAwesomeIcon
+            icon={isFocused ? config.activeIcon : config.icon}
+            size={responsive(18)}
+            color={isFocused ? theme.colors.light : theme.colors.grey_500}
+          />
+          {isFocused && (
+            <Typography
+              size={13}
+              weight={theme.fonts.semiBold}
+              color={theme.colors.light}
+              style={styles.tabLabel}
+            >
+              {config.label}
+            </Typography>
+          )}
+        </TouchableOpacity>
+      );
+    })}
+  </View>
+);
+
+// ─── Navigator ────────────────────────────────────────────────────────────────
+const TabNavigator = () => {
+  const appNav = useNavigation<NativeStackNavigationProp<AppStackParams>>();
+  const [activeTab, setActiveTab] =
+    useState<keyof BottomTabsStackParams>('HomeScreen');
+
+  const headerConfig = HEADER_CONFIGS[activeTab];
+
+  return (
+    <View style={styles.wrapper}>
+      <Header
+        {...headerConfig}
+        avatarSource={DUMMY_AVATAR}
+        onAvatarPress={() => appNav.navigate('profileHome')}
+        onNotificationPress={() => appNav.navigate('Notifications')}
+      />
+      <Tab.Navigator
+        tabBar={props => <CustomTabBar {...props} />}
+        screenOptions={{ headerShown: false }}
+      >
+        <Tab.Screen
+          name="HomeScreen"
+          component={HomeScreen}
+          listeners={{ focus: () => setActiveTab('HomeScreen') }}
+        />
+        <Tab.Screen
+          name="Listing"
+          component={ListingScreen}
+          listeners={{ focus: () => setActiveTab('Listing') }}
+        />
+        <Tab.Screen
+          name="Payments"
+          component={PaymentsScreen}
+          listeners={{ focus: () => setActiveTab('Payments') }}
+        />
+        <Tab.Screen
+          name="Documents"
+          component={DocumentsScreen}
+          listeners={{ focus: () => setActiveTab('Documents') }}
+        />
+      </Tab.Navigator>
     </View>
   );
 };
 
-// ─── Navigator ────────────────────────────────────────────────────────────────
-const TabNavigator = () => (
-  <Tab.Navigator
-    tabBar={props => <CustomTabBar {...props} />}
-    screenOptions={{ headerShown: false }}
-  >
-    <Tab.Screen name="HomeScreen" component={DashboardScreen} />
-    <Tab.Screen name="Listing" component={ListingScreen} />
-    <Tab.Screen name="Payments" component={PaymentsScreen} />
-    <Tab.Screen name="Documents" component={DocumentsScreen} />
-  </Tab.Navigator>
-);
-
 export default TabNavigator;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+    paddingTop: responsive(20),
+  },
   tabBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     backgroundColor: theme.colors.light,
-    paddingHorizontal: responsive(16),
+    paddingHorizontal: responsive(12),
     paddingVertical: responsive(10),
-    paddingBottom: responsive(20),
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.borderColor,
-    elevation: 8,
+    marginHorizontal: responsive(24),
+    marginBottom: responsive(28),
+    borderRadius: responsive(50),
+    elevation: 12,
     shadowColor: theme.colors.black,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
   },
   tabItem: {
     flexDirection: 'row',
@@ -172,7 +217,7 @@ const styles = StyleSheet.create({
   tabLabel: {
     marginLeft: responsive(6),
   },
-  badge: {
+  badgePill: {
     position: 'absolute',
     top: -responsive(6),
     right: -responsive(4),

@@ -12,7 +12,7 @@ export const white = {
 export const light_theme = {
   ...greyColors,
   ...white,
-  primary: '#102C57',
+  primary: '#005BE4',
   secondary: '#DAC0A3',
   background: '#FAFAFA',
   text_color: '#333333',
@@ -45,7 +45,7 @@ export const light_theme = {
 };
 
 export const dark_theme = {
-  primary: '#102C57',
+  primary: '#005BE4',
   secondary: '#DAC0A3',
   background: '#FAFAFA',
   text_color: '#333333',
