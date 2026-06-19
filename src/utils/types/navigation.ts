@@ -28,6 +28,15 @@ export type AuthScreenProps<T extends keyof AuthStackParams> =
 export type AppStackParams = {
   MainTabs: undefined;
   ViewAll: { title: string };
+  profileHome: undefined;
+  UserProfile: undefined;
+  MyListings: undefined;
+  NotificationSettings: undefined;
+  Settings: undefined;
+  HelpCenter: undefined;
+  LiveChat: undefined;
+  Complaint: undefined;
+  Notifications: undefined;
 };
 
 export type AppScreenProps<T extends keyof AppStackParams> =
