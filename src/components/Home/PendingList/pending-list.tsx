@@ -1,11 +1,5 @@
-import React, { useRef, useState } from 'react';
-import {
-  View,
-  FlatList,
-  ImageBackground,
-  StyleSheet,
-  ListRenderItemInfo,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, ImageBackground, StyleSheet } from 'react-native';
 import { faBookmark } from '@fortawesome/pro-regular-svg-icons';
 import { theme } from '@theme/index';
 import { responsive, SCREEN_WIDTH } from '@theme/responsive';
@@ -61,21 +55,43 @@ const DUMMY_DATA: PendingItem[] = [
 ];
 
 const CARD_WIDTH = SCREEN_WIDTH - responsive(20);
+const CARD_HEIGHT = responsive(210);
+const STACK_INSET = responsive(10);
+const STACK_PEEK = responsive(10);
+
+// Width and left offset for each stack position (0=front, 1=middle, 2+=back)
+const getStackStyle = (index: number) => {
+  const i = Math.min(index, 2);
+  return {
+    width: CARD_WIDTH - STACK_INSET * 2 * i,
+    left: STACK_INSET * i,
+    top: STACK_PEEK * i,
+    zIndex: 3 - i,
+    paddingBottom: i === 1 ? responsive(10) : i === 2 ? responsive(20) : 0,
+  };
+};
 
 const PendingList = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [items] = useState(DUMMY_DATA);
 
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: Array<{ index: number | null }> }) => {
-      if (viewableItems.length > 0) {
-        setActiveIndex(viewableItems[0].index ?? 0);
-      }
-    },
-  );
+  const renderCard = (item: PendingItem, index: number) => {
+    const stackStyle = getStackStyle(index);
+    const isFront = index === 0;
 
-  const renderItem = ({ item }: ListRenderItemInfo<PendingItem>) => (
-    <View style={{ flex: 1 }}>
-      <View style={styles.card}>
+    if (!isFront) {
+      return (
+        <View key={item.id} style={[styles.stackCard, stackStyle]}>
+          <ImageBackground
+            source={item.image}
+            style={styles.cardBg}
+            imageStyle={styles.cardImage}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <View key={item.id} style={[styles.stackCard, stackStyle]}>
         <ImageBackground
           source={item.image}
           style={styles.cardBg}
@@ -86,7 +102,6 @@ const PendingList = () => {
               <View style={styles.sliderLine} />
             </View>
 
-            {/* Top row */}
             <View style={styles.badge}>
               <Typography
                 size={16}
@@ -98,7 +113,6 @@ const PendingList = () => {
               <FloatingButton icon={faBookmark} onPress={() => {}} />
             </View>
 
-            {/* Amount & property */}
             <View style={styles.info}>
               <Typography
                 size={30}
@@ -117,7 +131,6 @@ const PendingList = () => {
               </Typography>
             </View>
 
-            {/* Action buttons */}
             <View style={styles.buttonRow}>
               <BlockButton
                 bgColor={theme.colors.light}
@@ -150,23 +163,18 @@ const PendingList = () => {
           </View>
         </ImageBackground>
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
-    <View>
-      <FlatList
-        data={DUMMY_DATA}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH}
-        decelerationRate="fast"
-        onViewableItemsChanged={onViewableItemsChanged.current}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-      />
+    <View style={styles.container}>
+      <View style={styles.stackContainer}>
+        {/* Render back-to-front so the front card sits on top */}
+        {[...items].reverse().map((item, reversedIndex) => {
+          const index = items.length - 1 - reversedIndex;
+          return renderCard(item, index);
+        })}
+      </View>
     </View>
   );
 };
@@ -174,6 +182,18 @@ const PendingList = () => {
 export default PendingList;
 
 const styles = StyleSheet.create({
+  container: {
+    // paddingHorizontal: responsive(10),
+  },
+  stackContainer: {
+    height: CARD_HEIGHT + STACK_PEEK * 2,
+  },
+  stackCard: {
+    position: 'absolute',
+    borderTopLeftRadius: responsive(20),
+    borderTopRightRadius: responsive(20),
+    overflow: 'hidden',
+  },
   card: {
     width: CARD_WIDTH,
     borderTopLeftRadius: responsive(30),
@@ -181,7 +201,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   cardBg: {
-    height: responsive(210),
+    height: responsive(230),
     justifyContent: 'flex-end',
   },
   cardImage: {
