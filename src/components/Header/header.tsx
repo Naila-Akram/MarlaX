@@ -28,7 +28,6 @@ type HeaderProps = (CenterLogo | CenterTitle) & {
   avatarSource?: ImageSourcePropType;
   onAvatarPress?: () => void;
   onNotificationPress?: () => void;
-  bellOutlined?: boolean;
 };
 
 const Header = ({
@@ -38,7 +37,6 @@ const Header = ({
   avatarSource,
   onAvatarPress,
   onNotificationPress,
-  bellOutlined = false,
 }: HeaderProps) => {
   return (
     <View style={styles.container}>
@@ -67,9 +65,9 @@ const Header = ({
       <TouchableOpacity
         onPress={onNotificationPress}
         activeOpacity={0.7}
-        style={[styles.bell, bellOutlined && styles.bellOutlined]}
+        style={styles.bell}
       >
-        <Icon name={faBell} size={bellOutlined ? 18 : 20} color={theme.colors.text_color} />
+        <Icon name={faBell} size={20} color={theme.colors.text_color} />
       </TouchableOpacity>
     </View>
   );
@@ -115,8 +113,6 @@ const styles = StyleSheet.create({
     height: responsive(38),
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  bellOutlined: {
     borderWidth: 1.5,
     borderColor: theme.colors.borderColor,
     borderRadius: responsive(19),

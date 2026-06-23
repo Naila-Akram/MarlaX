@@ -74,77 +74,82 @@ const PendingList = () => {
   );
 
   const renderItem = ({ item }: ListRenderItemInfo<PendingItem>) => (
-    <View style={styles.card}>
-      <ImageBackground
-        source={item.image}
-        style={styles.cardBg}
-        imageStyle={styles.cardImage}
-      >
-        <View style={styles.overlay}>
-          {/* Top row */}
-          <View style={styles.badge}>
-            <Typography
-              size={12}
-              color={theme.colors.light}
-              weight={theme.fonts.medium}
-            >
-              {item.installment} · {item.daysLeft} days left
-            </Typography>
-          </View>
+    <View style={{ flex: 1 }}>
+      <View style={styles.card}>
+        <ImageBackground
+          source={item.image}
+          style={styles.cardBg}
+          imageStyle={styles.cardImage}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.sliderWrapper}>
+              <View style={styles.sliderLine} />
+            </View>
 
-          {/* Amount & property */}
-          <View style={styles.info}>
-            <Typography
-              size={30}
-              weight={theme.fonts.bold}
-              color={theme.colors.light}
-            >
-              {item.amount} {item.currency}
-            </Typography>
-            <Typography
-              size={14}
-              color={theme.colors.light}
-              weight={theme.fonts.medium}
-              marginTop={4}
-            >
-              {item.property}
-            </Typography>
-          </View>
-
-          {/* Action buttons */}
-          <View style={styles.buttonRow}>
-            <BlockButton
-              bgColor={theme.colors.light}
-              style={styles.btn}
-              onPress={() => {}}
-            >
+            {/* Top row */}
+            <View style={styles.badge}>
               <Typography
-                size={13}
-                weight={theme.fonts.semiBold}
-                align="center"
-              >
-                Pay Now
-              </Typography>
-            </BlockButton>
-            <BlockButton
-              bgColor={theme.colors.black}
-              style={styles.btn}
-              onPress={() => {}}
-            >
-              <Typography
-                size={13}
-                weight={theme.fonts.semiBold}
+                size={16}
                 color={theme.colors.light}
-                align="center"
+                weight={theme.fonts.medium}
               >
-                Payment Plan
+                {item.installment} · {item.daysLeft} days left
               </Typography>
-            </BlockButton>
-          </View>
-        </View>
+              <FloatingButton icon={faBookmark} onPress={() => {}} />
+            </View>
 
-        <FloatingButton icon={faBookmark} onPress={() => {}} />
-      </ImageBackground>
+            {/* Amount & property */}
+            <View style={styles.info}>
+              <Typography
+                size={30}
+                weight={theme.fonts.bold}
+                color={theme.colors.light}
+              >
+                {item.amount} {item.currency}
+              </Typography>
+              <Typography
+                size={14}
+                color={theme.colors.light}
+                weight={theme.fonts.medium}
+                marginTop={4}
+              >
+                {item.property}
+              </Typography>
+            </View>
+
+            {/* Action buttons */}
+            <View style={styles.buttonRow}>
+              <BlockButton
+                bgColor={theme.colors.light}
+                style={styles.btn}
+                onPress={() => {}}
+              >
+                <Typography
+                  size={16}
+                  weight={theme.fonts.medium}
+                  align="center"
+                >
+                  Pay Now
+                </Typography>
+              </BlockButton>
+              <BlockButton
+                bgColor={theme.colors.black}
+                style={styles.btn}
+                onPress={() => {}}
+              >
+                <Typography
+                  size={16}
+                  weight={theme.fonts.medium}
+                  color={theme.colors.light}
+                  align="center"
+                >
+                  Payment Plan
+                </Typography>
+              </BlockButton>
+            </View>
+          </View>
+        </ImageBackground>
+      </View>
     </View>
   );
 
@@ -162,15 +167,6 @@ const PendingList = () => {
         onViewableItemsChanged={onViewableItemsChanged.current}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
       />
-
-      <View style={styles.dots}>
-        {DUMMY_DATA.map((_, i) => (
-          <View
-            key={i}
-            style={[styles.dot, i === activeIndex && styles.dotActive]}
-          />
-        ))}
-      </View>
     </View>
   );
 };
@@ -180,9 +176,9 @@ export default PendingList;
 const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
-    borderRadius: responsive(20),
+    borderTopLeftRadius: responsive(30),
+    borderTopRightRadius: responsive(30),
     overflow: 'hidden',
-    marginLeft: responsive(10),
   },
   cardBg: {
     height: responsive(210),
@@ -198,11 +194,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   badge: {
-    alignSelf: 'flex-start',
-    backgroundColor: transparent('#000000', 0.35),
-    paddingHorizontal: responsive(10),
     paddingVertical: responsive(5),
     borderRadius: responsive(20),
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   info: {
     marginBottom: responsive(4),
@@ -210,28 +206,19 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     gap: responsive(10),
-    paddingRight: responsive(68),
   },
   btn: {
     flex: 1,
     borderRadius: responsive(24),
   },
-  dots: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  sliderWrapper: {
     alignItems: 'center',
-    marginTop: responsive(10),
-    gap: responsive(6),
+    marginBottom: responsive(8),
   },
-  dot: {
-    width: responsive(7),
-    height: responsive(7),
-    borderRadius: responsive(4),
-    backgroundColor: theme.colors.grey_100,
-  },
-  dotActive: {
-    backgroundColor: theme.colors.primary,
-    width: responsive(18),
-    borderRadius: responsive(4),
+  sliderLine: {
+    width: responsive(56),
+    height: responsive(6),
+    borderRadius: responsive(20),
+    backgroundColor: transparent(theme.colors.light, 0.6),
   },
 });

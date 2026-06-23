@@ -18,7 +18,7 @@ export const light_theme = {
   background: '#FAFAFA',
   text_color: '#333333',
   text_color_light: '#666666',
-  light: '#FFFFFF',
+  light: '#F8F8FB',
   black: '#000000',
   borderColor: '#DDDDDD',
   red: '#F4464E',
