@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   container: {
-    flexGrow: 1,
+    flex: 1,
     paddingHorizontal: responsive(24),
     paddingTop: responsive(48),
     paddingBottom: responsive(32),
@@ -214,14 +214,15 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     marginTop: 0,
-    backgroundColor: theme.colors.grey_50,
     borderRadius: responsive(14),
+    backgroundColor: theme.colors.grey_1000,
   },
   inputField: {
     borderWidth: 0,
     borderColor: 'transparent',
     backgroundColor: 'transparent',
     marginTop: 0,
+    paddingHorizontal: responsive(10),
   },
   forgotRow: {
     alignSelf: 'flex-end',

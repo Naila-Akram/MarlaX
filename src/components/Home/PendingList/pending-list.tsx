@@ -32,7 +32,9 @@ const DUMMY_DATA: PendingItem[] = [
     amount: '60,000',
     currency: 'PKR',
     property: 'Smart Residency',
-    image: { uri: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600' },
+    image: {
+      uri: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600',
+    },
   },
   {
     id: '2',
@@ -41,7 +43,9 @@ const DUMMY_DATA: PendingItem[] = [
     amount: '75,000',
     currency: 'PKR',
     property: 'Blue Hills',
-    image: { uri: 'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600' },
+    image: {
+      uri: 'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600',
+    },
   },
   {
     id: '3',
@@ -50,7 +54,9 @@ const DUMMY_DATA: PendingItem[] = [
     amount: '45,000',
     currency: 'PKR',
     property: 'Green Valley',
-    image: { uri: 'https://images.unsplash.com/photo-1448630360428-65456885c650?w=600' },
+    image: {
+      uri: 'https://images.unsplash.com/photo-1448630360428-65456885c650?w=600',
+    },
   },
 ];
 
@@ -77,14 +83,22 @@ const PendingList = () => {
         <View style={styles.overlay}>
           {/* Top row */}
           <View style={styles.badge}>
-            <Typography size={12} color={theme.colors.light} weight={theme.fonts.medium}>
+            <Typography
+              size={12}
+              color={theme.colors.light}
+              weight={theme.fonts.medium}
+            >
               {item.installment} · {item.daysLeft} days left
             </Typography>
           </View>
 
           {/* Amount & property */}
           <View style={styles.info}>
-            <Typography size={30} weight={theme.fonts.bold} color={theme.colors.light}>
+            <Typography
+              size={30}
+              weight={theme.fonts.bold}
+              color={theme.colors.light}
+            >
               {item.amount} {item.currency}
             </Typography>
             <Typography
@@ -104,7 +118,11 @@ const PendingList = () => {
               style={styles.btn}
               onPress={() => {}}
             >
-              <Typography size={13} weight={theme.fonts.semiBold} align="center">
+              <Typography
+                size={13}
+                weight={theme.fonts.semiBold}
+                align="center"
+              >
                 Pay Now
               </Typography>
             </BlockButton>
@@ -147,7 +165,10 @@ const PendingList = () => {
 
       <View style={styles.dots}>
         {DUMMY_DATA.map((_, i) => (
-          <View key={i} style={[styles.dot, i === activeIndex && styles.dotActive]} />
+          <View
+            key={i}
+            style={[styles.dot, i === activeIndex && styles.dotActive]}
+          />
         ))}
       </View>
     </View>
