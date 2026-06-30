@@ -98,7 +98,7 @@ const InputText = ({
               },
             ],
           ]}
-          placeholderTextColor={transparent(theme.colors.text_color_light, 0.5)}
+          placeholderTextColor={theme.colors.text_color_light}
           secureTextEntry={secureText}
           textAlignVertical={props.multiline ? 'top' : 'auto'}
           {...props}

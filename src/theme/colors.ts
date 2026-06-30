@@ -2,6 +2,7 @@ export const greyColors = {
   grey_50: '#F9F9F9',
   grey_100: '#D1D1D1',
   grey_500: '#8E8E8E',
+  grey_1000: '#0506070D',
 };
 
 export const white = {
@@ -12,12 +13,12 @@ export const white = {
 export const light_theme = {
   ...greyColors,
   ...white,
-  primary: '#005BE4',
+  primary: '#0063D2',
   secondary: '#DAC0A3',
   background: '#FAFAFA',
   text_color: '#333333',
   text_color_light: '#666666',
-  light: '#FFFFFF',
+  light: '#F8F8FB',
   black: '#000000',
   borderColor: '#DDDDDD',
   red: '#F4464E',

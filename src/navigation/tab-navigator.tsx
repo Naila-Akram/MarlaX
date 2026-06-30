@@ -33,14 +33,14 @@ const DUMMY_AVATAR = { uri: 'https://i.pravatar.cc/150?img=12' };
 
 // ─── Header config per tab ────────────────────────────────────────────────────
 type HeaderConfig =
-  | { centerType: 'logo'; bellOutlined?: boolean }
-  | { centerType: 'title'; title: string; bellOutlined?: boolean };
+  | { centerType: 'logo' }
+  | { centerType: 'title'; title: string };
 
 const HEADER_CONFIGS: Record<keyof BottomTabsStackParams, HeaderConfig> = {
   HomeScreen: { centerType: 'logo' },
-  Listing: { centerType: 'title', title: 'Listings', bellOutlined: true },
-  Payments: { centerType: 'title', title: 'Payments', bellOutlined: true },
-  Documents: { centerType: 'title', title: 'Documents', bellOutlined: true },
+  Listing: { centerType: 'title', title: 'Listings' },
+  Payments: { centerType: 'title', title: 'Payments' },
+  Documents: { centerType: 'title', title: 'Documents' },
 };
 
 // ─── Tab config ───────────────────────────────────────────────────────────────

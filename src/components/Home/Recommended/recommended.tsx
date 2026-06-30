@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   cardBg: {
+    width: '100%',
     height: responsive(230),
   },
   cardImage: {
