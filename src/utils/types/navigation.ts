@@ -25,9 +25,19 @@ export type AuthScreenProps<T extends keyof AuthStackParams> =
   NativeStackScreenProps<AuthStackParams, T>;
 
 // ─── App stack ───────────────────────────────────────────────────────────────
+export type GalleryUnit = {
+  id: string;
+  price: string;
+  name: string;
+  location: string;
+  status?: string;
+  images: string[];
+};
+
 export type AppStackParams = {
   MainTabs: undefined;
   ViewAll: { title: string };
+  UnitDetail: { unit: GalleryUnit };
   profileHome: undefined;
   UserProfile: undefined;
   MyListings: undefined;

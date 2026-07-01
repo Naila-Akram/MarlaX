@@ -4,6 +4,7 @@ import { theme } from '@theme/index';
 import type { AppStackParams } from '@utils/types';
 import TabNavigator from './tab-navigator';
 import ViewAllScreen from '@screens/common/view-all';
+import UnitDetailScreen from '@screens/home/unit-detail';
 import UserProfileScreen from '@screens/profile/user-profile';
 import MyListingsScreen from '@screens/profile/my-listings';
 import NotificationSettingsScreen from '@screens/profile/notification-settings';
@@ -28,6 +29,7 @@ const AppNavigator = () => (
   >
     <AppStack.Screen name="MainTabs" component={TabNavigator} />
     <AppStack.Screen name="ViewAll" component={ViewAllScreen} />
+    <AppStack.Screen name="UnitDetail" component={UnitDetailScreen} />
     <AppStack.Screen name="profileHome" component={profileHome} />
     <AppStack.Screen name="UserProfile" component={UserProfileScreen} />
     <AppStack.Screen name="MyListings" component={MyListingsScreen} />
