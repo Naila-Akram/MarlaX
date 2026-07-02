@@ -7,7 +7,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  Image,
   StyleSheet,
   ListRenderItemInfo,
 } from 'react-native';
@@ -29,6 +28,7 @@ import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import Icon from '@theme/Icon/icon';
 import BlockButton from '@theme/buttons/block-button';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import type { AppScreenProps } from '@utils/types/navigation';
 
 type Props = AppScreenProps<'LiveChat'>;
@@ -188,7 +188,9 @@ const LiveChatScreen = ({ navigation }: Props) => {
             <Typography size={15} color={theme.colors.text_color} style={styles.bubbleText}>{item.text}</Typography>
             <Typography size={11} color={theme.colors.text_color_light} style={styles.timestamp}>{item.time}</Typography>
           </View>
-          {item.avatar && <Image source={{ uri: item.avatar }} style={styles.avatar} />}
+          {item.avatar && (
+            <RemoteImage uri={item.avatar} style={styles.avatar} showLoader={false} />
+          )}
         </View>
       );
     }
@@ -201,7 +203,7 @@ const LiveChatScreen = ({ navigation }: Props) => {
               <Typography size={12} weight={theme.fonts.bold} color={theme.colors.light}>{item.initials}</Typography>
             </View>
           ) : item.avatar ? (
-            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <RemoteImage uri={item.avatar} style={styles.avatar} showLoader={false} />
           ) : null}
           <View style={styles.receivedBubble}>
             <Typography size={15} color={theme.colors.text_color} style={styles.bubbleText}>{item.text}</Typography>

@@ -5,6 +5,9 @@ import type { AppStackParams } from '@utils/types';
 import TabNavigator from './tab-navigator';
 import ViewAllScreen from '@screens/common/view-all';
 import UnitDetailScreen from '@screens/home/unit-detail';
+import PaymentMethods from '@components/Home/PendingList/payment-methods';
+import PayViaCheck from '@components/Home/PendingList/pay-via-check';
+import PaymentSuccess from '@components/Home/PendingList/payment-success';
 import UserProfileScreen from '@screens/profile/user-profile';
 import MyListingsScreen from '@screens/profile/my-listings';
 import NotificationSettingsScreen from '@screens/profile/notification-settings';
@@ -30,6 +33,9 @@ const AppNavigator = () => (
     <AppStack.Screen name="MainTabs" component={TabNavigator} />
     <AppStack.Screen name="ViewAll" component={ViewAllScreen} />
     <AppStack.Screen name="UnitDetail" component={UnitDetailScreen} />
+    <AppStack.Screen name="PaymentMethods" component={PaymentMethods} />
+    <AppStack.Screen name="PayViaCheck" component={PayViaCheck} />
+    <AppStack.Screen name="PaymentSuccess" component={PaymentSuccess} />
     <AppStack.Screen name="profileHome" component={profileHome} />
     <AppStack.Screen name="UserProfile" component={UserProfileScreen} />
     <AppStack.Screen name="MyListings" component={MyListingsScreen} />

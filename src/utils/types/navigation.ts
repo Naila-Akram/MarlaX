@@ -38,6 +38,9 @@ export type AppStackParams = {
   MainTabs: undefined;
   ViewAll: { title: string };
   UnitDetail: { unit: GalleryUnit };
+  PaymentMethods: undefined;
+  PayViaCheck: undefined;
+  PaymentSuccess: undefined;
   profileHome: undefined;
   UserProfile: undefined;
   MyListings: undefined;

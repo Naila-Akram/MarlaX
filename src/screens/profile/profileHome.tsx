@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import ProfileHeader from './profileHeader';
 import {
   faEnvelope,
@@ -28,6 +22,7 @@ import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import Icon from '@theme/Icon/icon';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import { transparent } from '@utils/helper';
 import type { AppScreenProps } from '@utils/types/navigation';
 
@@ -62,9 +57,10 @@ const profileHome = ({ navigation }: Props) => {
       >
         {/* ── User info card ────────────────────────────────────────── */}
         <TouchableOpacity activeOpacity={0.85} style={styles.userCard} onPress={() => navigation.navigate('UserProfile')}>
-          <Image
-            source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
+          <RemoteImage
+            uri="https://i.pravatar.cc/150?img=12"
             style={styles.userAvatar}
+            showLoader={false}
           />
           <View style={styles.userInfo}>
             <View style={styles.nameRow}>
@@ -112,9 +108,10 @@ const profileHome = ({ navigation }: Props) => {
 
         <View style={styles.agentCard}>
           <View style={styles.agentTop}>
-            <Image
-              source={{ uri: 'https://i.pravatar.cc/150?img=33' }}
+            <RemoteImage
+              uri="https://i.pravatar.cc/150?img=33"
               style={styles.agentAvatar}
+              showLoader={false}
             />
             <View style={styles.agentInfo}>
               <Typography size={15} weight={theme.fonts.bold}>

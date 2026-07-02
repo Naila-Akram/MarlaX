@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   FlatList,
-  ImageBackground,
   TouchableOpacity,
   StyleSheet,
   ListRenderItemInfo,
@@ -20,6 +19,7 @@ import Typography from '@theme/typography/typography';
 import BlockButton from '@theme/buttons/block-button';
 import Icon from '@theme/Icon/icon';
 import Searchbar from '@components/Searchbar/searchbar';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import { transparent } from '@utils/helper';
 import type { TabScreenProps } from '@utils/types/navigation';
 
@@ -117,8 +117,8 @@ const ListingScreen = ({}: Props) => {
 
   const renderListing = ({ item }: ListRenderItemInfo<ListingItem>) => (
     <View style={styles.card}>
-      <ImageBackground
-        source={item.image}
+      <RemoteImage
+        uri={item.image.uri}
         style={styles.cardBg}
         imageStyle={styles.cardImage}
       >
@@ -161,7 +161,7 @@ const ListingScreen = ({}: Props) => {
             </Typography>
           </BlockButton>
         </View>
-      </ImageBackground>
+      </RemoteImage>
     </View>
   );
 

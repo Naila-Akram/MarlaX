@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   FlatList,
-  ImageBackground,
   TouchableOpacity,
   StyleSheet,
   ListRenderItemInfo,
@@ -16,6 +15,7 @@ import Typography from '@theme/typography/typography';
 import BlockButton from '@theme/buttons/block-button';
 import Icon from '@theme/Icon/icon';
 import { transparent } from '@utils/helper';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import type { AppStackParams, GalleryUnit } from '@utils/types';
 
 type NavProp = NativeStackNavigationProp<AppStackParams>;
@@ -76,8 +76,8 @@ const MyUnits = () => {
       style={styles.card}
       onPress={() => openDetail(item)}
     >
-      <ImageBackground
-        source={{ uri: item.images[0] }}
+      <RemoteImage
+        uri={item.images[0]}
         style={styles.cardBg}
         imageStyle={styles.cardImage}
       >
@@ -120,7 +120,7 @@ const MyUnits = () => {
             </Typography>
           </BlockButton>
         </View>
-      </ImageBackground>
+      </RemoteImage>
     </TouchableOpacity>
   );
 

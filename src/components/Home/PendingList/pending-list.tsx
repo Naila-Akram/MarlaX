@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, ImageBackground, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -16,7 +17,9 @@ import { responsive, SCREEN_WIDTH } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import BlockButton from '@theme/buttons/block-button';
 import FloatingButton from '@theme/buttons/floating-button';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import { transparent } from '@utils/helper';
+import PaymentSheet from './payment-sheet';
 
 type PendingItem = {
   id: string;
@@ -91,9 +94,16 @@ type SwipeCardProps = {
   slotIndex: number;
   total: number;
   onSwipe: (id: string) => void;
+  onPayNow: (item: PendingItem) => void;
 };
 
-const SwipeCard = ({ item, slotIndex, total, onSwipe }: SwipeCardProps) => {
+const SwipeCard = ({
+  item,
+  slotIndex,
+  total,
+  onSwipe,
+  onPayNow,
+}: SwipeCardProps) => {
   const isFront = slotIndex === 0;
   // Visual stack slot (clamped), horizontal drag (translateX), and the
   // exit flip (0 = flat, 0.5 = edge-on, 1 = flat again at the back).
@@ -173,7 +183,7 @@ const SwipeCard = ({ item, slotIndex, total, onSwipe }: SwipeCardProps) => {
       <Animated.View
         style={[styles.stackCard, { zIndex: total - slotIndex }, animatedStyle]}
       >
-        <ImageBackground source={item.image} style={styles.cardBg}>
+        <RemoteImage uri={item.image.uri} style={styles.cardBg}>
           {isFront && (
             <View style={styles.overlay}>
               <View style={styles.sliderWrapper}>
@@ -213,7 +223,7 @@ const SwipeCard = ({ item, slotIndex, total, onSwipe }: SwipeCardProps) => {
                 <BlockButton
                   bgColor={theme.colors.light}
                   style={styles.btn}
-                  onPress={() => {}}
+                  onPress={() => onPayNow(item)}
                 >
                   <Typography
                     size={16}
@@ -240,7 +250,7 @@ const SwipeCard = ({ item, slotIndex, total, onSwipe }: SwipeCardProps) => {
               </View>
             </View>
           )}
-        </ImageBackground>
+        </RemoteImage>
       </Animated.View>
     </GestureDetector>
   );
@@ -251,9 +261,16 @@ const PendingList = () => {
   // Stacking order (front -> back) tracked by id so each card keeps its
   // identity (and shared values) across reorders.
   const [order, setOrder] = useState(() => DUMMY_DATA.map(item => item.id));
+  // Payment sheet lives here (not inside a card) so it opens over the whole
+  // home page rather than within the swipe stack.
+  const paymentSheetRef = useRef<BottomSheetModal>(null);
 
   const handleSwipe = useCallback((id: string) => {
     setOrder(prev => [...prev.filter(itemId => itemId !== id), id]);
+  }, []);
+
+  const handlePayNow = useCallback((_item: PendingItem) => {
+    paymentSheetRef.current?.present();
   }, []);
 
   return (
@@ -270,9 +287,12 @@ const PendingList = () => {
               slotIndex={order.indexOf(item.id)}
               total={items.length}
               onSwipe={handleSwipe}
+              onPayNow={handlePayNow}
             />
           ))}
       </View>
+
+      <PaymentSheet bottomSheetRef={paymentSheetRef} />
     </View>
   );
 };

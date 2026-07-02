@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   View,
-  Image,
   ScrollView,
   TextInput,
   TouchableOpacity,
@@ -14,6 +13,7 @@ import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import InputText from '@theme/input/InputText';
 import Icon from '@theme/Icon/icon';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import { transparent } from '@utils/helper';
 import type { AppScreenProps } from '@utils/types/navigation';
 
@@ -39,9 +39,10 @@ const UserProfileScreen = ({ navigation }: Props) => {
       >
         {/* ── Avatar section ──────────────────────────────────────── */}
         <View style={styles.avatarSection}>
-          <Image
-            source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
+          <RemoteImage
+            uri="https://i.pravatar.cc/150?img=12"
             style={styles.avatar}
+            showLoader={false}
           />
           <Typography size={18} weight={theme.fonts.bold} marginTop={12}>
             Hamza Ali

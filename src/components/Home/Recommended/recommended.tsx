@@ -2,7 +2,6 @@ import React from 'react';
 import {
   View,
   FlatList,
-  ImageBackground,
   TouchableOpacity,
   StyleSheet,
   ListRenderItemInfo,
@@ -16,6 +15,7 @@ import Typography from '@theme/typography/typography';
 import BlockButton from '@theme/buttons/block-button';
 import Icon from '@theme/Icon/icon';
 import { transparent } from '@utils/helper';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import type { AppStackParams } from '@utils/types';
 
 type NavProp = NativeStackNavigationProp<AppStackParams>;
@@ -59,8 +59,8 @@ const Recommended = () => {
 
   const renderItem = ({ item }: ListRenderItemInfo<RecommendedItem>) => (
     <View style={styles.card}>
-      <ImageBackground
-        source={item.image}
+      <RemoteImage
+        uri={item.image.uri}
         style={styles.cardBg}
         imageStyle={styles.cardImage}
       >
@@ -95,7 +95,7 @@ const Recommended = () => {
             </Typography>
           </BlockButton>
         </View>
-      </ImageBackground>
+      </RemoteImage>
     </View>
   );
 

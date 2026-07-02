@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Image,
@@ -11,11 +11,16 @@ import {
   faLocationDot,
   faCircleCheck,
   faPhone,
+  faFileLines,
+  faReceipt,
+  faSquarePlus,
 } from '@fortawesome/pro-regular-svg-icons';
 import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import Icon from '@theme/Icon/icon';
+import ListingTopBar from '@components/ListingComponents/listing-top-bar';
+import ListingBottomTab from '@components/ListingComponents/listing-bottom-tab';
 import Section from './section';
 import FeatureTile from './feature-tile';
 import type { PaymentStatus, PropertyDetailData } from './types';
@@ -25,6 +30,8 @@ interface PropertyDetailProps {
   style?: StyleProp<ViewStyle>;
   /** Called when the contact/call action is pressed. */
   onContact?: () => void;
+  /** Called when the "List for Resale" action is pressed. */
+  onListResale?: () => void;
 }
 
 const PAYMENT_DOT: Record<PaymentStatus, string> = {
@@ -33,6 +40,8 @@ const PAYMENT_DOT: Record<PaymentStatus, string> = {
   upcoming: theme.colors.grey_100,
 };
 
+const TABS = ['Property Details', 'Property Status'];
+
 /**
  * Reusable property information panel. Renders a summary header (price, name,
  * location, status) followed by any of the optional sections that have data.
@@ -40,8 +49,14 @@ const PAYMENT_DOT: Record<PaymentStatus, string> = {
  * It intentionally renders plain content (no scroll view) so it can be dropped
  * inside a bottom sheet, a ScrollView, or a plain screen by the consumer.
  */
-const PropertyDetail = ({ data, style, onContact }: PropertyDetailProps) => {
+const PropertyDetail = ({
+  data,
+  style,
+  onContact,
+  onListResale,
+}: PropertyDetailProps) => {
   const { price, name, location, status } = data;
+  const [tab, setTab] = useState(0);
 
   return (
     <View style={[styles.container, style]}>
@@ -73,113 +88,142 @@ const PropertyDetail = ({ data, style, onContact }: PropertyDetailProps) => {
         </Typography>
       </View>
 
-      {/* Feature grid */}
-      {!!data.features?.length && (
-        <View style={styles.featureRow}>
-          {data.features.map(feature => (
-            <FeatureTile key={feature.label} {...feature} />
-          ))}
-        </View>
-      )}
+      {/* Segmented tabs */}
+      <ListingTopBar
+        tabs={TABS}
+        activeIndex={tab}
+        onChange={setTab}
+        style={styles.tabs}
+      />
 
-      {/* Description */}
-      {!!data.description && (
-        <Section title="Description">
-          <Typography
-            size={14}
-            color={theme.colors.text_color_light}
-            lineHeight={responsive(22)}
-          >
-            {data.description}
-          </Typography>
-        </Section>
-      )}
+      {tab === 0 ? (
+        <>
+          {/* Feature grid */}
+          {!!data.features?.length && (
+            <View style={styles.featureRow}>
+              {data.features.map(feature => (
+                <FeatureTile key={feature.label} {...feature} />
+              ))}
+            </View>
+          )}
 
-      {/* Amenities */}
-      {!!data.amenities?.length && (
-        <Section title="Amenities">
-          <View style={styles.amenityWrap}>
-            {data.amenities.map(amenity => (
-              <View key={amenity} style={styles.amenityChip}>
-                <Icon
-                  name={faCircleCheck}
-                  size={12}
-                  color={theme.colors.success_green}
-                />
-                <Typography size={13} color={theme.colors.text_color}>
-                  {amenity}
-                </Typography>
+          {/* Amenities */}
+          {!!data.amenities?.length && (
+            <Section title="Amenities">
+              <View style={styles.amenityWrap}>
+                {data.amenities.map(amenity => (
+                  <View key={amenity} style={styles.amenityChip}>
+                    <Icon
+                      name={faCircleCheck}
+                      size={12}
+                      color={theme.colors.success_green}
+                    />
+                    <Typography size={13} color={theme.colors.text_color}>
+                      {amenity}
+                    </Typography>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
-        </Section>
-      )}
+            </Section>
+          )}
 
-      {/* Payment plan */}
-      {!!data.paymentPlan?.length && (
-        <Section title="Payment Plan">
-          {data.paymentPlan.map(milestone => (
-            <View key={milestone.label} style={styles.payRow}>
-              <View style={styles.payLeft}>
-                <View
-                  style={[
-                    styles.payDot,
-                    { backgroundColor: PAYMENT_DOT[milestone.status ?? 'upcoming'] },
-                  ]}
-                />
-                <Typography size={14} color={theme.colors.text_color}>
-                  {milestone.label}
-                </Typography>
+          {/* Developed by / agent */}
+          {!!data.agent && (
+            <Section title="Developed By">
+              <View style={styles.agentRow}>
+                <View style={styles.avatar}>
+                  {data.agent.avatar ? (
+                    <Image
+                      source={{ uri: data.agent.avatar }}
+                      style={styles.avatarImg}
+                    />
+                  ) : (
+                    <Typography
+                      size={18}
+                      weight={theme.fonts.bold}
+                      color={theme.colors.primary}
+                    >
+                      {data.agent.name.charAt(0)}
+                    </Typography>
+                  )}
+                </View>
+                <View style={styles.agentInfo}>
+                  <Typography size={15} weight={theme.fonts.semiBold}>
+                    {data.agent.name}
+                  </Typography>
+                  {!!data.agent.role && (
+                    <Typography
+                      size={12}
+                      color={theme.colors.text_color_light}
+                      marginTop={2}
+                    >
+                      {data.agent.role}
+                    </Typography>
+                  )}
+                </View>
+                <TouchableOpacity
+                  style={styles.callBtn}
+                  onPress={onContact}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Icon name={faPhone} size={16} color={theme.colors.light} />
+                </TouchableOpacity>
               </View>
-              <Typography size={14} weight={theme.fonts.semiBold}>
-                {milestone.amount}
+            </Section>
+          )}
+
+          {/* Overview */}
+          {!!data.description && (
+            <Section title="Overview">
+              <Typography
+                size={14}
+                color={theme.colors.text_color_light}
+                lineHeight={responsive(22)}
+              >
+                {data.description}
               </Typography>
-            </View>
-          ))}
-        </Section>
+            </Section>
+          )}
+        </>
+      ) : (
+        <>
+          {/* Payment plan */}
+          {!!data.paymentPlan?.length && (
+            <Section title="Payment Plan">
+              {data.paymentPlan.map(milestone => (
+                <View key={milestone.label} style={styles.payRow}>
+                  <View style={styles.payLeft}>
+                    <View
+                      style={[
+                        styles.payDot,
+                        {
+                          backgroundColor:
+                            PAYMENT_DOT[milestone.status ?? 'upcoming'],
+                        },
+                      ]}
+                    />
+                    <Typography size={14} color={theme.colors.text_color}>
+                      {milestone.label}
+                    </Typography>
+                  </View>
+                  <Typography size={14} weight={theme.fonts.semiBold}>
+                    {milestone.amount}
+                  </Typography>
+                </View>
+              ))}
+            </Section>
+          )}
+        </>
       )}
 
-      {/* Agent */}
-      {!!data.agent && (
-        <Section title="Contact">
-          <View style={styles.agentRow}>
-            <View style={styles.avatar}>
-              {data.agent.avatar ? (
-                <Image source={{ uri: data.agent.avatar }} style={styles.avatarImg} />
-              ) : (
-                <Typography
-                  size={18}
-                  weight={theme.fonts.bold}
-                  color={theme.colors.primary}
-                >
-                  {data.agent.name.charAt(0)}
-                </Typography>
-              )}
-            </View>
-            <View style={styles.agentInfo}>
-              <Typography size={15} weight={theme.fonts.semiBold}>
-                {data.agent.name}
-              </Typography>
-              {!!data.agent.role && (
-                <Typography
-                  size={12}
-                  color={theme.colors.text_color_light}
-                  marginTop={2}
-                >
-                  {data.agent.role}
-                </Typography>
-              )}
-            </View>
-            <TouchableOpacity
-              style={styles.callBtn}
-              onPress={onContact}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Icon name={faPhone} size={16} color={theme.colors.light} />
-            </TouchableOpacity>
-          </View>
-        </Section>
-      )}
+      {/* Bottom action bar */}
+      <ListingBottomTab
+        actions={[{ icon: faFileLines }, { icon: faReceipt }]}
+        primaryIcon={faSquarePlus}
+        primaryLabel="List for Resale"
+        onPrimaryPress={onListResale}
+        style={styles.bottomBar}
+      />
     </View>
   );
 };
@@ -190,6 +234,14 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: responsive(20),
     paddingTop: responsive(4),
+  },
+  tabs: {
+    marginTop: responsive(20),
+    marginBottom: responsive(4),
+  },
+  bottomBar: {
+    marginTop: responsive(24),
+    marginHorizontal: -responsive(20),
   },
   headerTop: {
     flexDirection: 'row',

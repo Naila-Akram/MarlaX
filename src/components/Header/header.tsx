@@ -11,6 +11,7 @@ import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import Icon from '@theme/Icon/icon';
+import RemoteImage from '@components/RemoteImage/remote-image';
 
 type CenterLogo = {
   centerType: 'logo';
@@ -38,10 +39,19 @@ const Header = ({
   onAvatarPress,
   onNotificationPress,
 }: HeaderProps) => {
+  // Remote avatars ({ uri }) go through RemoteImage for retry/placeholder;
+  // local sources (require) keep using the plain Image.
+  const avatarUri =
+    avatarSource && typeof avatarSource === 'object' && !Array.isArray(avatarSource)
+      ? (avatarSource as { uri?: string }).uri
+      : undefined;
+
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onAvatarPress} activeOpacity={0.8}>
-        {avatarSource ? (
+        {avatarUri ? (
+          <RemoteImage uri={avatarUri} style={styles.avatar} showLoader={false} />
+        ) : avatarSource ? (
           <Image source={avatarSource} style={styles.avatar} />
         ) : (
           <View style={styles.avatarPlaceholder} />

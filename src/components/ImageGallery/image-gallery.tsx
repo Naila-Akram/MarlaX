@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
-  Image,
   FlatList,
   ScrollView,
   TouchableOpacity,
@@ -15,10 +14,11 @@ import {
 import { theme } from '@theme/index';
 import { responsive, SCREEN_HEIGHT } from '@theme/responsive';
 import PropertyDetail from '@components/PropertyDetail/property-detail';
+import RemoteImage from '@components/RemoteImage/remote-image';
 import type { PropertyDetailData } from '@components/PropertyDetail/types';
 
 // Height of the image area when the detail content scrolls beneath it.
-const DEFAULT_MEDIA_HEIGHT = Math.round(SCREEN_HEIGHT * 0.6);
+const DEFAULT_MEDIA_HEIGHT = SCREEN_HEIGHT;
 
 export interface ImageGalleryProps {
   /** Ordered list of image uris. The first is shown initially, the rest live in the rail. */
@@ -113,7 +113,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
       }
       if (page === 0) {
         // Landed on the clone of the last image → jump to the real one.
-        listRef.current?.scrollToOffset({ offset: count * width, animated: false });
+        listRef.current?.scrollToOffset({
+          offset: count * width,
+          animated: false,
+        });
         changeActive(count - 1);
       } else if (page === count + 1) {
         // Landed on the clone of the first image → jump to the real one.
@@ -142,9 +145,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   const renderItem = useCallback(
     ({ item }: { item: string }) => (
-      <Image
-        source={{ uri: item }}
-        style={[styles.image, { width, borderRadius }]}
+      <RemoteImage
+        uri={item}
+        style={[styles.image, { width }]}
+        imageStyle={{ borderRadius }}
         resizeMode="cover"
       />
     ),
@@ -153,7 +157,10 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   const media = (
     <View
-      style={[styles.media, detail ? { height: mediaHeight } : [styles.fill, style]]}
+      style={[
+        styles.media,
+        detail ? { height: mediaHeight } : [styles.fill, style],
+      ]}
       onLayout={handleLayout}
     >
       {width > 0 && (
@@ -191,10 +198,11 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                 onPress={() => goTo(i)}
                 style={[styles.thumb, isActive && styles.thumbActive]}
               >
-                <Image
-                  source={{ uri }}
+                <RemoteImage
+                  uri={uri}
                   style={styles.thumbImg}
                   resizeMode="cover"
+                  showLoader={false}
                 />
               </TouchableOpacity>
             );
@@ -218,7 +226,6 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
     >
       {media}
       <View style={styles.detailWrap}>
-        <View style={styles.grabber} />
         <PropertyDetail data={detail} onContact={onContact} />
       </View>
     </ScrollView>
@@ -273,19 +280,8 @@ const styles = StyleSheet.create({
   },
   detailWrap: {
     flex: 1,
-    marginTop: -responsive(20),
-    paddingTop: responsive(12),
+    paddingTop: responsive(16),
     paddingBottom: responsive(40),
-    borderTopLeftRadius: responsive(24),
-    borderTopRightRadius: responsive(24),
     backgroundColor: theme.colors.light,
-  },
-  grabber: {
-    alignSelf: 'center',
-    width: responsive(40),
-    height: responsive(5),
-    borderRadius: responsive(3),
-    backgroundColor: theme.colors.grey_100,
-    marginBottom: responsive(6),
   },
 });
