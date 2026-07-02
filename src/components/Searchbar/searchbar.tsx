@@ -50,6 +50,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsive(16),
     paddingVertical: responsive(12),
     gap: responsive(10),
+    borderColor: theme.colors.grey_100,
+    borderWidth: 0.5,
   },
   input: {
     flex: 1,

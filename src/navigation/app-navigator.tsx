@@ -17,6 +17,8 @@ import LiveChatScreen from '@screens/profile/live-chat';
 import ComplaintScreen from '@screens/profile/complaint';
 import NotificationsScreen from '@screens/notifications/notifications';
 import profileHome from '@screens/profile/profileHome';
+import SellPropertyScreen from '@screens/home/sell-property';
+import AddAmenitiesScreen from '@screens/home/add-amenities';
 
 const AppStack = createNativeStackNavigator<AppStackParams>();
 
@@ -48,6 +50,8 @@ const AppNavigator = () => (
     <AppStack.Screen name="LiveChat" component={LiveChatScreen} />
     <AppStack.Screen name="Complaint" component={ComplaintScreen} />
     <AppStack.Screen name="Notifications" component={NotificationsScreen} />
+    <AppStack.Screen name="SellProperty" component={SellPropertyScreen} />
+    <AppStack.Screen name="AddAmenities" component={AddAmenitiesScreen} />
   </AppStack.Navigator>
 );
 

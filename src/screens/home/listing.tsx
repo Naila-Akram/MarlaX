@@ -1,209 +1,200 @@
 import React, { useState } from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
-  View,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ListRenderItemInfo,
-} from 'react-native';
-import {
-  faHouse,
-  faBuilding,
-  faMap,
-  faHeart,
+  faLayerPlus,
+  faBadgePercent,
+  faGavel,
+  faBarsFilter,
 } from '@fortawesome/pro-regular-svg-icons';
-import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import BlockButton from '@theme/buttons/block-button';
 import Icon from '@theme/Icon/icon';
+import Header from '@components/Header/header';
 import Searchbar from '@components/Searchbar/searchbar';
 import RemoteImage from '@components/RemoteImage/remote-image';
+import ListingTopBar from '@components/ListingComponents/listing-top-bar';
+import DirectSaleListings from '@components/ListingComponents/direct-sale-listings';
+import BiddingListings from '@components/ListingComponents/bidding-listings';
 import { transparent } from '@utils/helper';
-import type { TabScreenProps } from '@utils/types/navigation';
+import type { AppStackParams, TabScreenProps } from '@utils/types/navigation';
 
 type Props = TabScreenProps<'Listing'>;
 
-// ─── Filter categories ────────────────────────────────────────────────────────
-type Category = { id: string; label: string; icon?: IconProp };
+const AVATAR = { uri: 'https://i.pravatar.cc/150?img=12' };
+const SEGMENTS = ['Public', 'My Listings'];
+const FLOWS = ['Direct Sale', 'Bidding'];
+const FLOW_ICONS = [faBadgePercent, faGavel];
 
-const CATEGORIES: Category[] = [
-  { id: 'all',       label: 'All' },
-  { id: 'house',     label: 'House',     icon: faHouse },
-  { id: 'apartment', label: 'Apartment', icon: faBuilding },
-  { id: 'plot',      label: 'Plot',      icon: faMap },
-];
-
-// ─── Listing cards ────────────────────────────────────────────────────────────
-type ListingItem = {
-  id: string;
-  type: string;
-  priceLabel: string;
-  priceAmount: string;
-  name: string;
-  location: string;
-  image: { uri: string };
-};
-
-const DUMMY_LISTINGS: ListingItem[] = [
-  {
-    id: '1',
-    type: 'House',
-    priceLabel: 'PKR',
-    priceAmount: '2.5 Crore',
-    name: 'Apex Apartment',
-    location: 'DHA Phase 5, Lahore.',
-    image: { uri: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800' },
-  },
-  {
-    id: '2',
-    type: 'Apartment',
-    priceLabel: 'PKR',
-    priceAmount: '1.8 Crore',
-    name: 'Sky Heights',
-    location: 'Gulberg III, Lahore.',
-    image: { uri: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800' },
-  },
-  {
-    id: '3',
-    type: 'Plot',
-    priceLabel: 'PKR',
-    priceAmount: '3.2 Crore',
-    name: 'Green Enclave',
-    location: 'Bahria Town, Islamabad.',
-    image: { uri: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800' },
-  },
-  {
-    id: '4',
-    type: 'House',
-    priceLabel: 'PKR',
-    priceAmount: '4.1 Crore',
-    name: 'Horizon Villas',
-    location: 'Phase 6, Karachi.',
-    image: { uri: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800' },
-  },
+// Images fanned out behind the empty-state copy.
+const STACK_IMAGES = [
+  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600',
+  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600',
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600',
 ];
 
 const ListingScreen = ({}: Props) => {
+  const appNav = useNavigation<NativeStackNavigationProp<AppStackParams>>();
+  const [segment, setSegment] = useState(1);
+  const [flow, setFlow] = useState(1); // 0 = Direct Sale, 1 = Bidding
   const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState('all');
 
-  const renderCategory = ({ item }: ListRenderItemInfo<Category>) => {
-    const isActive = item.id === activeCategory;
-    return (
-      <TouchableOpacity
-        onPress={() => setActiveCategory(item.id)}
-        activeOpacity={0.75}
-        style={[styles.chip, isActive && styles.chipActive]}
-      >
-        {item.icon && (
-          <Icon
-            name={item.icon}
-            size={14}
-            color={isActive ? theme.colors.light : theme.colors.text_color}
-          />
-        )}
-        <Typography
-          size={14}
-          weight={theme.fonts.medium}
-          color={isActive ? theme.colors.light : theme.colors.text_color}
+  // TEMP dev switch — flip empty ⇄ populated until the API is wired in.
+  const [hasListings, setHasListings] = useState(true);
+
+  const goToSell = () => appNav.navigate('SellProperty');
+
+  // ── My Listings — populated ────────────────────────────────────────────────
+  const renderPopulated = () => (
+    <View style={styles.body}>
+      <View style={styles.searchRow}>
+        <Searchbar
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Search Properties"
+          style={styles.searchbar}
+        />
+        <TouchableOpacity
+          onPress={goToSell}
+          activeOpacity={0.8}
+          style={styles.iconBtn}
         >
-          {item.label}
-        </Typography>
-      </TouchableOpacity>
-    );
-  };
+          <Icon name={faLayerPlus} size={18} color={theme.colors.text_color} />
+        </TouchableOpacity>
+      </View>
 
-  const renderListing = ({ item }: ListRenderItemInfo<ListingItem>) => (
-    <View style={styles.card}>
-      <RemoteImage
-        uri={item.image.uri}
-        style={styles.cardBg}
-        imageStyle={styles.cardImage}
-      >
-        {/* Top row: type badge + heart */}
-        <View style={styles.cardTop}>
-          <View style={styles.typeBadge}>
-            <Typography size={13} weight={theme.fonts.medium} color={theme.colors.text_color}>
-              {item.type}
-            </Typography>
-          </View>
-          <TouchableOpacity style={styles.heartBtn} activeOpacity={0.8}>
-            <Icon name={faHeart} size={16} color={theme.colors.text_color} />
-          </TouchableOpacity>
-        </View>
+      <View style={styles.switcherRow}>
+        <ListingTopBar
+          tabs={FLOWS}
+          icons={FLOW_ICONS}
+          activeIndex={flow}
+          onChange={setFlow}
+          style={styles.switcher}
+        />
+        <TouchableOpacity activeOpacity={0.8} style={styles.iconBtn}>
+          <Icon name={faBarsFilter} size={18} color={theme.colors.text_color} />
+        </TouchableOpacity>
+      </View>
 
-        {/* Bottom overlay */}
-        <View style={styles.cardOverlay}>
-          <View style={styles.priceRow}>
-            <Typography size={14} weight={theme.fonts.medium} color={theme.colors.light}>
-              {item.priceLabel}{' '}
-            </Typography>
-            <Typography size={26} weight={theme.fonts.bold} color={theme.colors.light}>
-              {item.priceAmount}
-            </Typography>
-          </View>
-          <Typography size={16} weight={theme.fonts.semiBold} color={theme.colors.light} marginTop={2}>
-            {item.name}
-          </Typography>
-          <Typography size={13} color={theme.colors.light} marginTop={2} style={styles.locationText}>
-            {item.location}
-          </Typography>
-
-          <BlockButton
-            bgColor={theme.colors.light}
-            style={styles.lookBtn}
-            onPress={() => {}}
-          >
-            <Typography size={14} weight={theme.fonts.semiBold} align="center">
-              Take a look
-            </Typography>
-          </BlockButton>
-        </View>
-      </RemoteImage>
+      {flow === 0 ? <DirectSaleListings /> : <BiddingListings />}
     </View>
   );
 
-  const ListHeader = (
-    <View>
-      <View style={styles.intro}>
-        <Typography size={28} weight={theme.fonts.regular} color={theme.colors.text_color}>
-          Made for You
-        </Typography>
-        <Typography size={28} weight={theme.fonts.bold} color={theme.colors.black}>
-          Explore Properties
-        </Typography>
+  // ── My Listings — empty ────────────────────────────────────────────────────
+  const renderEmpty = () => (
+    <View style={styles.emptyWrap}>
+      <View style={styles.stack}>
+        <View style={[styles.stackCard, styles.stackLeft]}>
+          <RemoteImage
+            uri={STACK_IMAGES[0]}
+            style={styles.stackImage}
+            imageStyle={styles.stackImageInner}
+            showLoader={false}
+          />
+        </View>
+        <View style={[styles.stackCard, styles.stackRight]}>
+          <RemoteImage
+            uri={STACK_IMAGES[2]}
+            style={styles.stackImage}
+            imageStyle={styles.stackImageInner}
+            showLoader={false}
+          />
+        </View>
+        <View style={[styles.stackCard, styles.stackFront]}>
+          <RemoteImage
+            uri={STACK_IMAGES[1]}
+            style={styles.stackImage}
+            imageStyle={styles.stackImageInner}
+            showLoader={false}
+          />
+        </View>
       </View>
 
-      <Searchbar
-        value={search}
-        onChangeText={setSearch}
-        placeholder="Search Properties"
-        style={styles.searchbar}
-      />
+      <Typography
+        size={28}
+        weight={theme.fonts.bold}
+        color={theme.colors.black}
+        align="center"
+      >
+        No listings yet
+      </Typography>
+      <Typography
+        size={15}
+        color={theme.colors.text_color_light}
+        align="center"
+        style={styles.emptySubtitle}
+      >
+        Your listings will appear here. Add a property for sale and make it
+        visible to thousands of potential buyers.
+      </Typography>
 
-      <FlatList
-        data={CATEGORIES}
-        keyExtractor={item => item.id}
-        renderItem={renderCategory}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryList}
-      />
+      <BlockButton
+        bgColor={theme.colors.primary}
+        style={styles.sellBtn}
+        onPress={goToSell}
+      >
+        <Icon name={faLayerPlus} size={18} color={theme.colors.white_900} />
+        <Typography
+          size={16}
+          weight={theme.fonts.semiBold}
+          color={theme.colors.white_900}
+        >
+          Sell Property
+        </Typography>
+      </BlockButton>
+    </View>
+  );
+
+  const renderMyListings = () => (
+    <View style={styles.myListings}>
+      {hasListings ? renderPopulated() : renderEmpty()}
+
+      {/* TEMP: remove once listings come from the API. */}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => setHasListings(v => !v)}
+        style={styles.devPill}
+      >
+        <Typography
+          size={12}
+          weight={theme.fonts.medium}
+          color={theme.colors.white_900}
+        >
+          Dev: {hasListings ? 'Populated' : 'Empty'}
+        </Typography>
+      </TouchableOpacity>
+    </View>
+  );
+
+  // ── Public tab (placeholder for now) ───────────────────────────────────────
+  const renderPublic = () => (
+    <View style={styles.placeholder}>
+      <Typography
+        size={16}
+        color={theme.colors.text_color_light}
+        align="center"
+      >
+        Public listings coming soon.
+      </Typography>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={DUMMY_LISTINGS}
-        keyExtractor={item => item.id}
-        renderItem={renderListing}
-        ListHeaderComponent={ListHeader}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
+      <Header
+        centerType="segment"
+        segmentTabs={SEGMENTS}
+        segmentActiveIndex={segment}
+        onSegmentChange={setSegment}
+        avatarSource={AVATAR}
+        onAvatarPress={() => appNav.navigate('profileHome')}
+        onNotificationPress={() => appNav.navigate('Notifications')}
       />
+
+      {segment === 0 ? renderPublic() : renderMyListings()}
     </View>
   );
 };
@@ -215,86 +206,130 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  intro: {
+  myListings: {
+    flex: 1,
+  },
+  body: {
+    flex: 1,
+  },
+  // ── Populated: search + flow switcher ───────────────────────────────────────
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: responsive(10),
     paddingHorizontal: responsive(20),
     marginTop: responsive(4),
-    marginBottom: responsive(16),
+    marginBottom: responsive(14),
   },
   searchbar: {
-    marginHorizontal: responsive(20),
-    marginBottom: responsive(16),
+    flex: 1,
   },
-  categoryList: {
-    paddingHorizontal: responsive(20),
-    gap: responsive(10),
-    paddingBottom: responsive(16),
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: responsive(6),
-    paddingHorizontal: responsive(16),
-    paddingVertical: responsive(10),
-    borderRadius: responsive(30),
+  iconBtn: {
+    width: responsive(48),
+    height: responsive(48),
+    borderRadius: responsive(16),
     borderWidth: 1.5,
     borderColor: theme.colors.borderColor,
-    backgroundColor: theme.colors.light,
-  },
-  chipActive: {
-    backgroundColor: theme.colors.black,
-    borderColor: theme.colors.black,
-  },
-  listContent: {
-    paddingBottom: responsive(120),
-  },
-  card: {
-    marginHorizontal: responsive(20),
-    marginBottom: responsive(16),
-    borderRadius: responsive(22),
-    overflow: 'hidden',
-  },
-  cardBg: {
-    width: '100%',
-    height: responsive(420),
-    justifyContent: 'space-between',
-  },
-  cardImage: {
-    borderRadius: responsive(22),
-  },
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: responsive(14),
-  },
-  typeBadge: {
-    backgroundColor: theme.colors.light,
-    paddingHorizontal: responsive(14),
-    paddingVertical: responsive(6),
-    borderRadius: responsive(20),
-  },
-  heartBtn: {
-    width: responsive(38),
-    height: responsive(38),
-    borderRadius: responsive(19),
-    backgroundColor: transparent(theme.colors.light, 0.9),
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: theme.colors.white_900,
   },
-  cardOverlay: {
-    backgroundColor: transparent('#000000', 0.55),
-    padding: responsive(18),
-    borderBottomLeftRadius: responsive(22),
-    borderBottomRightRadius: responsive(22),
-  },
-  priceRow: {
+  switcherRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
+    gap: responsive(10),
+    paddingHorizontal: responsive(20),
+    marginBottom: responsive(16),
   },
-  locationText: {
-    opacity: 0.8,
+  switcher: {
+    flex: 1,
   },
-  lookBtn: {
+  // ── Empty state ────────────────────────────────────────────────────────────
+  emptyWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: responsive(32),
+    paddingBottom: responsive(80),
+  },
+  stack: {
+    width: '100%',
+    height: responsive(340),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: responsive(12),
+  },
+  stackCard: {
+    position: 'absolute',
+    width: responsive(196),
+    height: responsive(258),
+    borderRadius: responsive(22),
+    borderWidth: responsive(6),
+    borderColor: theme.colors.white_900,
+    backgroundColor: theme.colors.white_900,
+    overflow: 'hidden',
+    shadowColor: theme.colors.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  stackImage: {
+    width: '100%',
+    height: '100%',
+  },
+  stackImageInner: {
+    borderRadius: responsive(16),
+  },
+  stackLeft: {
+    zIndex: 1,
+    transform: [
+      { translateX: -responsive(58) },
+      { translateY: responsive(24) },
+      { rotate: '-13deg' },
+    ],
+  },
+  stackRight: {
+    zIndex: 1,
+    transform: [
+      { translateX: responsive(58) },
+      { translateY: responsive(24) },
+      { rotate: '13deg' },
+    ],
+  },
+  stackFront: {
+    zIndex: 2,
+    transform: [{ translateY: -responsive(10) }],
+  },
+  emptySubtitle: {
+    marginTop: responsive(12),
+    lineHeight: responsive(22),
+  },
+  sellBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: responsive(10),
     borderRadius: responsive(30),
-    marginTop: responsive(14),
+    paddingVertical: responsive(16),
+    marginTop: responsive(32),
+  },
+  // ── Public placeholder ─────────────────────────────────────────────────────
+  placeholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: responsive(32),
+  },
+  // ── TEMP dev switch ─────────────────────────────────────────────────────────
+  devPill: {
+    position: 'absolute',
+    right: responsive(20),
+    bottom: responsive(100),
+    backgroundColor: transparent(theme.colors.black, 0.8),
+    paddingHorizontal: responsive(14),
+    paddingVertical: responsive(8),
+    borderRadius: responsive(20),
+    zIndex: 20,
   },
 });

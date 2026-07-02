@@ -12,6 +12,7 @@ import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import Icon from '@theme/Icon/icon';
 import RemoteImage from '@components/RemoteImage/remote-image';
+import ListingTopBar from '@components/ListingComponents/listing-top-bar';
 
 type CenterLogo = {
   centerType: 'logo';
@@ -25,20 +26,26 @@ type CenterTitle = {
   logoSource?: never;
 };
 
-type HeaderProps = (CenterLogo | CenterTitle) & {
+type CenterSegment = {
+  centerType: 'segment';
+  /** Segment labels rendered left → right. */
+  segmentTabs: string[];
+  /** Index of the currently selected segment. */
+  segmentActiveIndex: number;
+  /** Notified with the tapped segment's index. */
+  onSegmentChange: (index: number) => void;
+  title?: never;
+  logoSource?: never;
+};
+
+type HeaderProps = (CenterLogo | CenterTitle | CenterSegment) & {
   avatarSource?: ImageSourcePropType;
   onAvatarPress?: () => void;
   onNotificationPress?: () => void;
 };
 
-const Header = ({
-  centerType,
-  title,
-  logoSource,
-  avatarSource,
-  onAvatarPress,
-  onNotificationPress,
-}: HeaderProps) => {
+const Header = (props: HeaderProps) => {
+  const { avatarSource, onAvatarPress, onNotificationPress } = props;
   // Remote avatars ({ uri }) go through RemoteImage for retry/placeholder;
   // local sources (require) keep using the plain Image.
   const avatarUri =
@@ -59,15 +66,22 @@ const Header = ({
       </TouchableOpacity>
 
       <View style={styles.center}>
-        {centerType === 'logo' ? (
+        {props.centerType === 'logo' ? (
           <Image
-            source={logoSource ?? require('../../assets/images/Logo.png')}
+            source={props.logoSource ?? require('../../assets/images/Logo.png')}
             style={styles.logo}
             resizeMode="contain"
           />
+        ) : props.centerType === 'segment' ? (
+          <ListingTopBar
+            tabs={props.segmentTabs}
+            activeIndex={props.segmentActiveIndex}
+            onChange={props.onSegmentChange}
+            style={styles.segment}
+          />
         ) : (
           <Typography size={18} weight={theme.fonts.semiBold} align="center">
-            {title}
+            {props.title}
           </Typography>
         )}
       </View>
@@ -113,6 +127,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     marginHorizontal: responsive(12),
+  },
+  segment: {
+    alignSelf: 'stretch',
   },
   logo: {
     width: responsive(100),

@@ -50,6 +50,8 @@ export type AppStackParams = {
   LiveChat: undefined;
   Complaint: undefined;
   Notifications: undefined;
+  SellProperty: { newAmenity?: { id: string; label: string; value: string } } | undefined;
+  AddAmenities: undefined;
 };
 
 export type AppScreenProps<T extends keyof AppStackParams> =

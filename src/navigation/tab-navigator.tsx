@@ -142,12 +142,16 @@ const TabNavigator = () => {
 
   return (
     <View style={styles.wrapper}>
-      <Header
-        {...headerConfig}
-        avatarSource={DUMMY_AVATAR}
-        onAvatarPress={() => appNav.navigate('profileHome')}
-        onNotificationPress={() => appNav.navigate('Notifications')}
-      />
+      {/* The Listing tab renders its own header (with the Public / My Listings
+          segmented control), so the shared header is skipped there. */}
+      {activeTab !== 'Listing' && (
+        <Header
+          {...headerConfig}
+          avatarSource={DUMMY_AVATAR}
+          onAvatarPress={() => appNav.navigate('profileHome')}
+          onNotificationPress={() => appNav.navigate('Notifications')}
+        />
+      )}
       <Tab.Navigator
         tabBar={props => <CustomTabBar {...props} />}
         screenOptions={{ headerShown: false }}
