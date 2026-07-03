@@ -16,7 +16,7 @@ import BlockButton from '@theme/buttons/block-button';
 import Icon from '@theme/Icon/icon';
 import { transparent } from '@utils/helper';
 import RemoteImage from '@components/RemoteImage/remote-image';
-import type { AppStackParams } from '@utils/types';
+import type { AppStackParams, GalleryUnit } from '@utils/types';
 
 type NavProp = NativeStackNavigationProp<AppStackParams>;
 
@@ -25,7 +25,7 @@ type RecommendedItem = {
   price: string;
   name: string;
   location: string;
-  image: { uri: string };
+  images: string[];
 };
 
 const DUMMY_RECOMMENDED: RecommendedItem[] = [
@@ -34,33 +34,63 @@ const DUMMY_RECOMMENDED: RecommendedItem[] = [
     price: 'PKR 3.2 Crore',
     name: 'Horizon Residences',
     location: 'Bahria Town',
-    image: { uri: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600' },
+    images: [
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
+      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800',
+      'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800',
+      'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800',
+    ],
   },
   {
     id: '2',
     price: 'PKR 1.5 Crore',
     name: 'The Grand Plaza',
     location: 'Gulberg III',
-    image: { uri: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600' },
+    images: [
+      'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800',
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800',
+    ],
   },
   {
     id: '3',
     price: 'PKR 2.1 Crore',
     name: 'Marina Heights',
     location: 'Clifton, Karachi',
-    image: { uri: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600' },
+    images: [
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
+      'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=800',
+      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800',
+      'https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800',
+    ],
   },
 ];
 
 const CARD_WIDTH = SCREEN_WIDTH * 0.56;
 
+const toGalleryUnit = (item: RecommendedItem): GalleryUnit => ({
+  id: item.id,
+  price: item.price,
+  name: item.name,
+  location: item.location,
+  images: item.images,
+});
+
 const Recommended = () => {
   const navigation = useNavigation<NavProp>();
 
+  const openDetail = (item: RecommendedItem) =>
+    navigation.navigate('UnitDetail', { unit: toGalleryUnit(item) });
+
   const renderItem = ({ item }: ListRenderItemInfo<RecommendedItem>) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      style={styles.card}
+      onPress={() => openDetail(item)}
+    >
       <RemoteImage
-        uri={item.image.uri}
+        uri={item.images[0]}
         style={styles.cardBg}
         imageStyle={styles.cardImage}
       >
@@ -88,7 +118,7 @@ const Recommended = () => {
           <BlockButton
             bgColor={theme.colors.light}
             style={styles.lookBtn}
-            onPress={() => {}}
+            onPress={() => openDetail(item)}
           >
             <Typography size={13} weight={theme.fonts.semiBold} align="center">
               Take a look
@@ -96,7 +126,7 @@ const Recommended = () => {
           </BlockButton>
         </View>
       </RemoteImage>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
