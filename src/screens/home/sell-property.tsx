@@ -1,23 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import BlockButton from '@theme/buttons/block-button';
 import SellPropertyHeader from '@components/SellProperty/sell-property-header';
+import SubmitReviewSheet from '@components/SellProperty/submit-review-sheet';
 import {
   SellPropertyProvider,
   useSellProperty,
 } from '@components/SellProperty/sell-property-context';
+import type { SellPropertyForm } from '@components/SellProperty/sell-property-context';
 import StepName from '@components/SellProperty/steps/step-name';
 import StepLocation from '@components/SellProperty/steps/step-location';
 import StepPropertyDetail from '@components/SellProperty/steps/step-property-detail';
 import StepFeatures from '@components/SellProperty/steps/step-features';
 import StepMedia from '@components/SellProperty/steps/step-media';
 import StepContact from '@components/SellProperty/steps/step-contact';
+import { useListingStore } from '@stores/listing-store';
+import type { MyListing } from '@components/ListingComponents/listing-card';
 import type { AppScreenProps } from '@utils/types/navigation';
 
 type Props = AppScreenProps<'SellProperty'>;
+
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800';
+
+// Map the collected form into a listing card for the My Listings feed.
+const buildListing = (form: SellPropertyForm): MyListing => {
+  const total = Math.round(
+    (parseFloat(form.area) || 0) * (parseFloat(form.price) || 0),
+  );
+  const amount = total > 0 ? total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : form.price;
+  const isBidding = form.listFor === 'bidding';
+  const uploaded = (form.images ?? []).map(i => i.uri);
+  return {
+    id: `listing-${Date.now()}`,
+    type: form.propertyType,
+    saleType: form.listFor,
+    statusLabel: isBidding ? 'Under Review' : undefined,
+    statusTone: 'warning',
+    priceLabel: form.currency,
+    priceAmount: amount || '—',
+    title: form.name || form.propertyName || 'New Listing',
+    location: form.location,
+    images: uploaded.length > 0 ? uploaded : [FALLBACK_IMAGE],
+  };
+};
 
 // The six wizard steps, in order. Each swaps its placeholder for real UI later.
 const STEPS: { title: string; Component: React.ComponentType }[] = [
@@ -31,16 +61,18 @@ const STEPS: { title: string; Component: React.ComponentType }[] = [
 
 const SellPropertyFlow = ({ navigation, route }: Props) => {
   const [step, setStep] = useState(0);
-  const { addAmenity } = useSellProperty();
+  const { form, addAmenities } = useSellProperty();
+  const addListing = useListingStore(s => s.addListing);
+  const sheetRef = useRef<BottomSheetModal>(null);
 
-  // The Add Amenities screen returns here with the new amenity as a param.
-  const returnedAmenity = route.params?.newAmenity;
+  // The Add Amenities screen returns here with the picked amenities as a param.
+  const returnedAmenities = route.params?.newAmenities;
   useEffect(() => {
-    if (returnedAmenity) {
-      addAmenity(returnedAmenity);
-      navigation.setParams({ newAmenity: undefined });
+    if (returnedAmenities?.length) {
+      addAmenities(returnedAmenities);
+      navigation.setParams({ newAmenities: undefined });
     }
-  }, [returnedAmenity, addAmenity, navigation]);
+  }, [returnedAmenities, addAmenities, navigation]);
 
   const isLast = step === STEPS.length - 1;
   const CurrentStep = STEPS[step].Component;
@@ -57,9 +89,18 @@ const SellPropertyFlow = ({ navigation, route }: Props) => {
     if (!isLast) {
       setStep(s => s + 1);
     } else {
-      // TODO: submit the listing once the API is wired in.
-      navigation.goBack();
+      sheetRef.current?.present();
     }
+  };
+
+  // Publish the listing to the My Listings feed and leave the flow.
+  const handleConfirm = () => {
+    addListing(buildListing(form));
+    sheetRef.current?.dismiss();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MainTabs', params: { screen: 'Listing' } }],
+    });
   };
 
   return (
@@ -114,11 +155,13 @@ const SellPropertyFlow = ({ navigation, route }: Props) => {
               color={theme.colors.white_900}
               align="center"
             >
-              {isLast ? 'Submit' : 'Next'}
+              {isLast ? 'Submit for Review' : 'Next'}
             </Typography>
           </BlockButton>
         </View>
       </View>
+
+      <SubmitReviewSheet bottomSheetRef={sheetRef} onConfirm={handleConfirm} />
     </View>
   );
 };

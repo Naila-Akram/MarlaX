@@ -1,5 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { NavigatorScreenParams } from '@react-navigation/native';
 import { OTP_TYPE, ScreenTypes } from '.';
 
 // ─── Auth stack ──────────────────────────────────────────────────────────────
@@ -35,7 +36,7 @@ export type GalleryUnit = {
 };
 
 export type AppStackParams = {
-  MainTabs: undefined;
+  MainTabs: NavigatorScreenParams<BottomTabsStackParams> | undefined;
   ViewAll: { title: string };
   UnitDetail: { unit: GalleryUnit };
   PaymentMethods: undefined;
@@ -50,7 +51,9 @@ export type AppStackParams = {
   LiveChat: undefined;
   Complaint: undefined;
   Notifications: undefined;
-  SellProperty: { newAmenity?: { id: string; label: string; value: string } } | undefined;
+  SellProperty:
+    | { newAmenities?: { id: string; label: string; value: string }[] }
+    | undefined;
   AddAmenities: undefined;
 };
 

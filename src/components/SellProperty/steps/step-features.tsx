@@ -95,11 +95,21 @@ const StepFeatures = () => {
       <View style={styles.chips}>
         {(form.amenities ?? []).map(a => (
           <View key={a.id} style={styles.chip}>
-            <Typography size={14} color={theme.colors.text_color_light}>
-              {a.label}:{' '}
-            </Typography>
-            <Typography size={15} weight={theme.fonts.bold}>
-              {a.value}
+            <Typography size={15}>
+              {a.value ? (
+                <>
+                  <Typography size={14} color={theme.colors.text_color_light}>
+                    {a.label}:{' '}
+                  </Typography>
+                  <Typography size={15} weight={theme.fonts.bold}>
+                    {a.value}
+                  </Typography>
+                </>
+              ) : (
+                <Typography size={15} weight={theme.fonts.bold}>
+                  {a.label}
+                </Typography>
+              )}
             </Typography>
             <TouchableOpacity
               activeOpacity={0.7}

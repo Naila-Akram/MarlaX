@@ -19,6 +19,7 @@ import RemoteImage from '@components/RemoteImage/remote-image';
 import ListingTopBar from '@components/ListingComponents/listing-top-bar';
 import DirectSaleListings from '@components/ListingComponents/direct-sale-listings';
 import BiddingListings from '@components/ListingComponents/bidding-listings';
+import PublicListings from '@components/ListingComponents/public-listings';
 import { transparent } from '@utils/helper';
 import type { AppStackParams, TabScreenProps } from '@utils/types/navigation';
 
@@ -27,6 +28,7 @@ type Props = TabScreenProps<'Listing'>;
 const AVATAR = { uri: 'https://i.pravatar.cc/150?img=12' };
 const SEGMENTS = ['Public', 'My Listings'];
 const FLOWS = ['Direct Sale', 'Bidding'];
+const PUBLIC_FLOWS = ['Buy Now', 'Bidding'];
 const FLOW_ICONS = [faBadgePercent, faGavel];
 
 // Images fanned out behind the empty-state copy.
@@ -40,6 +42,7 @@ const ListingScreen = ({}: Props) => {
   const appNav = useNavigation<NativeStackNavigationProp<AppStackParams>>();
   const [segment, setSegment] = useState(1);
   const [flow, setFlow] = useState(1); // 0 = Direct Sale, 1 = Bidding
+  const [publicFlow, setPublicFlow] = useState(1); // 0 = Direct Sale, 1 = Bidding
   const [search, setSearch] = useState('');
 
   // TEMP dev switch — flip empty ⇄ populated until the API is wired in.
@@ -169,16 +172,32 @@ const ListingScreen = ({}: Props) => {
     </View>
   );
 
-  // ── Public tab (placeholder for now) ───────────────────────────────────────
+  // ── Public tab ──────────────────────────────────────────────────────────────
   const renderPublic = () => (
-    <View style={styles.placeholder}>
-      <Typography
-        size={16}
-        color={theme.colors.text_color_light}
-        align="center"
-      >
-        Public listings coming soon.
-      </Typography>
+    <View style={styles.body}>
+      <View style={styles.searchRow}>
+        <Searchbar
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Search Properties"
+          style={styles.searchbar}
+        />
+      </View>
+
+      <View style={styles.switcherRow}>
+        <ListingTopBar
+          tabs={PUBLIC_FLOWS}
+          icons={FLOW_ICONS}
+          activeIndex={publicFlow}
+          onChange={setPublicFlow}
+          style={styles.switcher}
+        />
+        <TouchableOpacity activeOpacity={0.8} style={styles.iconBtn}>
+          <Icon name={faBarsFilter} size={18} color={theme.colors.text_color} />
+        </TouchableOpacity>
+      </View>
+
+      <PublicListings saleType={publicFlow === 0 ? 'direct' : 'bidding'} />
     </View>
   );
 
@@ -313,13 +332,6 @@ const styles = StyleSheet.create({
     borderRadius: responsive(30),
     paddingVertical: responsive(16),
     marginTop: responsive(32),
-  },
-  // ── Public placeholder ─────────────────────────────────────────────────────
-  placeholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: responsive(32),
   },
   // ── TEMP dev switch ─────────────────────────────────────────────────────────
   devPill: {

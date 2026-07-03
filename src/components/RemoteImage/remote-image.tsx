@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -18,7 +18,15 @@ import Icon from '@theme/Icon/icon';
  * placeholder. Each retry remounts the image with a cache-busted url so a bad /
  * empty cached response can't keep it blank forever.
  */
-const MAX_RETRIES = 2;
+const MAX_RETRIES = 3;
+
+/**
+ * If a load neither succeeds (`onLoad`) nor fails (`onError`) within this window
+ * it has silently stalled — the most common reason a remote image renders
+ * "sometimes". We treat the stall as a failure and re-request. Kept generous so
+ * a slow-but-valid load on a poor connection isn't cut off prematurely.
+ */
+const LOAD_TIMEOUT_MS = 8000;
 
 const buildUri = (base: string, attempt: number): string => {
   if (attempt === 0) {
@@ -82,10 +90,33 @@ const RemoteImage: React.FC<RemoteImageProps> = ({
     });
   }, []);
 
+  // Watchdog: a load that never calls onLoad *or* onError has silently stalled.
+  // Re-arm on every (attempt, status) change so each fresh request is watched;
+  // onLoad/onError flip `status` away from 'loading' and cancel the timer.
+  const errorRef = useRef(handleError);
+  errorRef.current = handleError;
+  useEffect(() => {
+    if (status !== 'loading' || !uri) {
+      return;
+    }
+    const timer = setTimeout(() => errorRef.current(), LOAD_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [status, attempt, uri]);
+
   const failed = !uri || status === 'error';
 
   return (
     <View style={[styles.container, style]}>
+      {/* Neutral skeleton behind the image until it paints, so there is always a
+          visible loading surface — even where the spinner is disabled. The image
+          (absolute-fill, on top) covers it as soon as it decodes. */}
+      {!failed && status !== 'loaded' && (
+        <View
+          style={[StyleSheet.absoluteFill, styles.loadingBg, imageStyle]}
+          pointerEvents="none"
+        />
+      )}
+
       {failed ? (
         <View style={[StyleSheet.absoluteFill, styles.placeholder, imageStyle]}>
           <Icon name={faImage} size={26} color={theme.colors.grey_500} />
@@ -123,6 +154,9 @@ const styles = StyleSheet.create({
   // `style` (avatars, cards) rounds the image without extra per-call-site work.
   container: {
     overflow: 'hidden',
+  },
+  loadingBg: {
+    backgroundColor: theme.colors.grey_100,
   },
   placeholder: {
     alignItems: 'center',

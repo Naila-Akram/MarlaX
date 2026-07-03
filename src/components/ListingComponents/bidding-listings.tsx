@@ -5,48 +5,24 @@ import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import ListingCard from './listing-card';
 import type { MyListing } from './listing-card';
-
-// Dummy data — replaced by the API response later.
-const BIDDING_LISTINGS: MyListing[] = [
-  {
-    id: 'b1',
-    type: 'Farm House',
-    saleType: 'bidding',
-    statusLabel: 'Ends in 2 hrs',
-    statusTone: 'warning',
-    priceLabel: 'PKR',
-    priceAmount: '3.2 Crore',
-    title: 'Farm House for Sale',
-    location: 'Bahria Town, Lahore.',
-    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800',
-  },
-  {
-    id: 'b2',
-    type: 'Farm House',
-    saleType: 'bidding',
-    statusLabel: 'Starts in 30 mins',
-    statusTone: 'success',
-    priceLabel: 'PKR',
-    priceAmount: '3.2 Crore',
-    title: 'Farm House for Sale',
-    location: 'Bahria Town, Lahore.',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800',
-  },
-];
+import { useListingStore } from '@stores/listing-store';
 
 /**
- * Bidding flow — the list of the user's auction listings. Kept as its own
- * component because bidding is a distinct flow that will grow its own screens.
+ * Bidding flow — the user's auction listings, read from the shared store so
+ * newly submitted bids appear here. Kept as its own component because bidding
+ * is a distinct flow that will grow its own screens.
  */
 const BiddingListings = () => {
+  const listings = useListingStore(s => s.biddingListings);
+
   const renderItem = ({ item }: ListRenderItemInfo<MyListing>) => (
-    <ListingCard item={item} onPress={() => {}} />
+    <ListingCard item={item} />
   );
 
   return (
     <FlatList
       style={styles.list}
-      data={BIDDING_LISTINGS}
+      data={listings}
       keyExtractor={item => item.id}
       renderItem={renderItem}
       contentContainerStyle={styles.content}

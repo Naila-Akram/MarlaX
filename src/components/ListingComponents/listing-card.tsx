@@ -1,11 +1,16 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { faHeart } from '@fortawesome/pro-regular-svg-icons';
 import { theme } from '@theme/index';
 import { responsive } from '@theme/responsive';
 import Typography from '@theme/typography/typography';
 import BlockButton from '@theme/buttons/block-button';
+import Icon from '@theme/Icon/icon';
 import RemoteImage from '@components/RemoteImage/remote-image';
 import { transparent } from '@utils/helper';
+import type { AppStackParams, GalleryUnit } from '@utils/types';
 
 export type SaleType = 'direct' | 'bidding';
 export type StatusTone = 'warning' | 'success';
@@ -27,12 +32,15 @@ export interface MyListing {
   /** Headline, e.g. "Farm House for Sale". */
   title: string;
   location: string;
-  image: string;
+  /** Gallery — the card shows the first, the detail page shows them all. */
+  images: string[];
 }
 
 interface ListingCardProps {
   item: MyListing;
-  onPress?: () => void;
+  /** Show a heart (favourite) button instead of the status pill. */
+  showHeart?: boolean;
+  onHeartPress?: () => void;
 }
 
 const TONES: Record<StatusTone, string> = {
@@ -40,18 +48,32 @@ const TONES: Record<StatusTone, string> = {
   success: theme.colors.Success,
 };
 
+// The detail screen (shared with Home's "My Units") takes a GalleryUnit.
+const toGalleryUnit = (item: MyListing): GalleryUnit => ({
+  id: item.id,
+  price: `${item.priceLabel} ${item.priceAmount}`,
+  name: item.title,
+  location: item.location,
+  status: item.statusLabel,
+  images: item.images,
+});
+
 /**
  * Full-bleed property card used across the listing feeds. Renders the type
  * badge and auction-status pill over the image, with the price, title and a
  * primary action fading in from the bottom overlay.
  */
-const ListingCard = ({ item, onPress }: ListingCardProps) => {
+const ListingCard = ({ item, showHeart, onHeartPress }: ListingCardProps) => {
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParams>>();
   const tone = TONES[item.statusTone ?? 'warning'];
 
+  const openDetail = () =>
+    navigation.navigate('UnitDetail', { unit: toGalleryUnit(item) });
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} activeOpacity={0.95} onPress={openDetail}>
       <RemoteImage
-        uri={item.image}
+        uri={item.images[0]}
         style={styles.bg}
         imageStyle={styles.image}
       >
@@ -66,13 +88,23 @@ const ListingCard = ({ item, onPress }: ListingCardProps) => {
               {item.type}
             </Typography>
           </View>
-          {!!item.statusLabel && (
-            <View style={[styles.statusPill, { borderColor: tone }]}>
-              <View style={[styles.dot, { backgroundColor: tone }]} />
-              <Typography size={13} weight={theme.fonts.medium} color={tone}>
-                {item.statusLabel}
-              </Typography>
-            </View>
+          {showHeart ? (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={onHeartPress}
+              style={styles.heartBtn}
+            >
+              <Icon name={faHeart} size={16} color={theme.colors.text_color} />
+            </TouchableOpacity>
+          ) : (
+            !!item.statusLabel && (
+              <View style={[styles.statusPill, { borderColor: tone }]}>
+                <View style={[styles.dot, { backgroundColor: tone }]} />
+                <Typography size={13} weight={theme.fonts.medium} color={tone}>
+                  {item.statusLabel}
+                </Typography>
+              </View>
+            )
           )}
         </View>
 
@@ -96,7 +128,7 @@ const ListingCard = ({ item, onPress }: ListingCardProps) => {
           <BlockButton
             bgColor={theme.colors.light}
             style={styles.detailsBtn}
-            onPress={onPress}
+            onPress={openDetail}
           >
             <Typography size={15} weight={theme.fonts.semiBold} align="center">
               View Details
@@ -104,7 +136,7 @@ const ListingCard = ({ item, onPress }: ListingCardProps) => {
           </BlockButton>
         </View>
       </RemoteImage>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -151,6 +183,14 @@ const styles = StyleSheet.create({
     width: responsive(7),
     height: responsive(7),
     borderRadius: responsive(4),
+  },
+  heartBtn: {
+    width: responsive(38),
+    height: responsive(38),
+    borderRadius: responsive(19),
+    backgroundColor: theme.colors.light,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   overlay: {
     backgroundColor: transparent('#000000', 0.55),
